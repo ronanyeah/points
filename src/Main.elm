@@ -1,12 +1,20 @@
 module Main exposing (main)
 
 import Browser exposing (Env, Page)
-import Element exposing (centerX, centerY, column, el, fill, height, padding, px, row, spacing, text, width)
+import Element exposing (Attribute, Color, Element, centerX, centerY, column, el, fill, height, padding, px, row, spacing, text, width)
 import Element.Background as Background
+import Element.Border as Border
+import Element.Font as Font
 import Element.Input exposing (button)
 import Html exposing (Html)
 import Html.Attributes
 import Time exposing (Posix)
+
+
+rgb : Float -> Float -> Float -> Color
+rgb r g b =
+    Element.rgb (r / 255) (g / 255) (b / 255)
+
 
 
 -- MAIN
@@ -118,72 +126,106 @@ view model =
                 "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
             ]
             []
-        , Element.layout [] <|
-            column [ spacing 20 ]
+        , Element.layout [ height fill, Background.color uc ] <|
+            column [ spacing 20, height fill ]
                 [ row []
-                    [ el [ width fill, height <| px 40 ] <| el [ centerX, centerY ] <| text <| String.fromInt model.red
-                    , el [ width fill, height <| px 40 ] <| el [ centerX, centerY ] <| text <| String.fromInt model.blue
+                    [ el [ width fill, padding 10, Font.size 40, Background.color red ] <| el [ centerX, centerY ] <| text <| String.fromInt model.red
+                    , el [ width fill, padding 10, Font.size 40, Background.color blue ] <| el [ centerX, centerY ] <| text <| String.fromInt model.blue
                     ]
-                , row [ Element.spaceEvenly, width fill ]
-                    [ button [ width fill, Background.color <| Element.rgb 20 20 20 ]
-                        { onPress = Just <| Red 2
-                        , label = el [] <| text "2"
-                        }
-                    , button [ width fill, Background.color <| Element.rgb 20 20 20 ]
-                        { onPress = Just <| Blue 2
-                        , label = el [] <| text "2"
-                        }
-                    ]
-                , row [ Element.spaceEvenly, width fill ]
-                    [ button [ width fill, Background.color <| Element.rgb 20 20 20 ]
-                        { onPress = Just <| Red 3
-                        , label = el [] <| text "3"
-                        }
-                    , button [ width fill, Background.color <| Element.rgb 20 20 20 ]
-                        { onPress = Just <| Blue 3
-                        , label = el [] <| text "3"
-                        }
-                    ]
-                , row [ Element.spaceEvenly, width fill ]
-                    [ button [ width fill, Background.color <| Element.rgb 20 20 20 ]
-                        { onPress = Just <| Red 4
-                        , label = el [] <| text "4"
-                        }
-                    , button [ width fill, Background.color <| Element.rgb 20 20 20 ]
-                        { onPress = Just <| Blue 4
-                        , label = el [] <| text "4"
-                        }
-                    ]
-                , case model.timer of
-                    Just _ ->
-                        Element.text ""
-
-                    Nothing ->
-                        button
-                            [ width fill, Background.color <| Element.rgb 20 20 20 ]
-                            { onPress = Just Start
-                            , label = el [] <| text "Start"
-                            }
+                , pointRow 2
+                , pointRow 3
+                , pointRow 4
                 , case model.timer of
                     Just ( m, s, ms ) ->
-                        column []
-                            [ button [ width fill, Background.color <| Element.rgb 20 20 20 ]
-                                { onPress = Just Clear
-                                , label =
-                                    row [ Element.spaceEvenly ]
-                                        [ el [ Element.padding 20 ] <| text <| pad m
-                                        , el [ Element.padding 20 ] <| text <| pad s
-                                        , el [ Element.padding 20 ] <| text <| pad ms
+                        column [ spacing 10, padding 10 ]
+                            [ el [ width fill, padding 15, Background.color sc, Font.color white ] <|
+                                el [ centerX ] <|
+                                    row [ spacing 15 ]
+                                        [ el [] <| text <| pad m
+                                        , el [] <| text ":"
+                                        , el [] <| text <| pad s
+                                        , el [] <| text ":"
+                                        , el [] <| text <| pad ms
                                         ]
-                                }
-                            , button [ width fill, Background.color <| Element.rgb 20 20 20 ]
-                                { onPress = Just Clear
-                                , label = el [] <| text "Reset"
-                                }
+                            , reset
                             ]
 
                     Nothing ->
-                        Element.none
+                        column [ spacing 10, padding 10 ]
+                            [ button
+                                [ width fill, padding 15, Background.color sc, Font.color white, shadow ]
+                                { onPress = Just Start
+                                , label = el [] <| text "Start"
+                                }
+                            , reset
+                            ]
                 ]
         ]
     }
+
+
+pointRow : Int -> Element Msg
+pointRow i =
+    row [ spacing 10, width fill, padding 10, Font.color white ]
+        [ button [ width fill, Background.color black, padding 10, shadow ]
+            { onPress = Just <| Red i
+            , label = el [] <| text <| String.fromInt i
+            }
+        , button [ width fill, Background.color black, padding 10, shadow ]
+            { onPress = Just <| Blue i
+            , label = el [] <| text <| String.fromInt i
+            }
+        ]
+
+
+reset : Element Msg
+reset =
+    button [ width fill, padding 15, Background.color sc, Font.color white, shadow ]
+        { onPress = Just Clear
+        , label = el [] <| text "Reset"
+        }
+
+
+white : Color
+white =
+    rgb 255 255 255
+
+
+blue : Color
+blue =
+    rgb 2 103 193
+
+
+red : Color
+red =
+    rgb 242 66 54
+
+
+black : Color
+black =
+    rgb 10 17 40
+
+
+uc : Color
+uc =
+    rgb 88 114 145
+
+
+sc : Color
+sc =
+    rgb 85 5 39
+
+
+grey : Color
+grey =
+    rgb 169 169 169
+
+
+shadow : Attribute Msg
+shadow =
+    Border.shadow
+        { offset = ( 3, 3 )
+        , blur = 3
+        , size = 1
+        , color = grey
+        }
