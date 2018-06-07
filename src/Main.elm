@@ -36,7 +36,7 @@ main =
                     Waiting _ ->
                         Sub.none
 
-                    Finished ->
+                    Finished _ ->
                         Sub.none
         }
 
@@ -47,7 +47,7 @@ main =
 
 type Timer
     = Waiting Int
-    | Finished
+    | Finished String
     | Running ( Int, Int, Int )
 
 
@@ -100,7 +100,14 @@ update msg model =
                 timer =
                     case t of
                         ( 0, 0, 0 ) ->
-                            Finished
+                            (if model.red == model.blue then
+                                "Draw!"
+                             else if model.red > model.blue then
+                                "Red wins!"
+                             else
+                                "Blue wins!"
+                            )
+                                |> Finished
 
                         ( m, 0, 0 ) ->
                             Running ( m - 1, 59, 99 )
@@ -190,12 +197,13 @@ view model =
                             , reset
                             ]
 
-                    Finished ->
+                    Finished str ->
                         column [ spacing 10, padding 10 ]
                             [ el
                                 [ width fill, padding 15, Background.color sc, Font.color white, shadow ]
                               <|
-                                text "Finished!"
+                                el [ centerX ] <|
+                                    text str
                             , reset
                             ]
                 ]
