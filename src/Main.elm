@@ -28,9 +28,16 @@ main =
         , view = view
         , onNavigation = Nothing
         , subscriptions =
-            .timer
-                >> Maybe.map (\x -> Time.every 10 (always (Tick x)))
-                >> Maybe.withDefault Sub.none
+            \{ timer } ->
+                case timer of
+                    Running x ->
+                        Time.every 10 (always (Tick x))
+
+                    Waiting _ ->
+                        Sub.none
+
+                    Finished ->
+                        Sub.none
         }
 
 
@@ -38,10 +45,16 @@ main =
 -- MODEL
 
 
+type Timer
+    = Waiting Int
+    | Finished
+    | Running ( Int, Int, Int )
+
+
 type alias Model =
     { red : Int
     , blue : Int
-    , timer : Maybe ( Int, Int, Int )
+    , timer : Timer
     }
 
 
@@ -49,7 +62,7 @@ init : Browser.Env () -> ( Model, Cmd Msg )
 init _ =
     ( { red = 0
       , blue = 0
-      , timer = Nothing
+      , timer = Waiting 5
       }
     , Cmd.none
     )
@@ -63,7 +76,7 @@ type Msg
     = Red Int
     | Blue Int
     | Clear
-    | Start
+    | SetTimer Timer
     | Tick ( Int, Int, Int )
 
 
@@ -77,32 +90,32 @@ update msg model =
             ( { model | blue = model.blue + i }, Cmd.none )
 
         Clear ->
-            ( { model | blue = 0, red = 0, timer = Nothing }, Cmd.none )
+            ( { model | blue = 0, red = 0, timer = Waiting 5 }, Cmd.none )
 
-        Start ->
-            ( { model | timer = Just ( 5, 0, 0 ) }, Cmd.none )
+        SetTimer timer ->
+            ( { model | timer = timer }, Cmd.none )
 
         Tick t ->
             let
                 timer =
                     case t of
                         ( 0, 0, 0 ) ->
-                            Nothing
+                            Finished
 
                         ( m, 0, 0 ) ->
-                            Just ( m - 1, 59, 99 )
+                            Running ( m - 1, 59, 99 )
 
                         ( 0, s, 0 ) ->
-                            Just ( 0, s - 1, 99 )
+                            Running ( 0, s - 1, 99 )
 
                         ( 0, 0, ms ) ->
-                            Just ( 0, 0, ms - 1 )
+                            Running ( 0, 0, ms - 1 )
 
                         ( m, s, 0 ) ->
-                            Just ( m, s - 1, 99 )
+                            Running ( m, s - 1, 99 )
 
                         ( m, s, ms ) ->
-                            Just ( m, s, ms - 1 )
+                            Running ( m, s, ms - 1 )
             in
             ( { model | timer = timer }, Cmd.none )
 
@@ -136,9 +149,9 @@ view model =
                 , pointRow 3
                 , pointRow 4
                 , case model.timer of
-                    Just ( m, s, ms ) ->
+                    Running ( m, s, ms ) ->
                         column [ spacing 10, padding 10 ]
-                            [ el [ width fill, padding 15, Background.color sc, Font.color white ] <|
+                            [ el [ width fill, padding 15, Background.color sc, Font.color white, shadow ] <|
                                 el [ centerX ] <|
                                     row [ spacing 15 ]
                                         [ el [] <| text <| pad m
@@ -150,13 +163,39 @@ view model =
                             , reset
                             ]
 
-                    Nothing ->
+                    Waiting i ->
                         column [ spacing 10, padding 10 ]
-                            [ button
+                            [ row
+                                [ spacing 10 ]
+                                [ button
+                                    [ width fill, padding 15, Background.color sc, Font.color white, shadow ]
+                                    { onPress = Just <| SetTimer <| Waiting <| i + 1
+                                    , label = el [] <| text "+"
+                                    }
+                                , button
+                                    [ width fill, padding 15, Background.color sc, Font.color white, shadow ]
+                                    { onPress = Just <| SetTimer <| Running ( i, 0, 0 )
+                                    , label = el [] <| text <| String.fromInt i
+                                    }
+                                , button
+                                    [ width fill, padding 15, Background.color sc, Font.color white, shadow ]
+                                    { onPress =
+                                        if i == 1 then
+                                            Nothing
+                                        else
+                                            Just <| SetTimer <| Waiting <| i - 1
+                                    , label = el [] <| text "-"
+                                    }
+                                ]
+                            , reset
+                            ]
+
+                    Finished ->
+                        column [ spacing 10, padding 10 ]
+                            [ el
                                 [ width fill, padding 15, Background.color sc, Font.color white, shadow ]
-                                { onPress = Just Start
-                                , label = el [] <| text "Start"
-                                }
+                              <|
+                                text "Finished!"
                             , reset
                             ]
                 ]
