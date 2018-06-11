@@ -58,7 +58,7 @@ type alias Model =
     }
 
 
-init : Browser.Env () -> ( Model, Cmd Msg )
+init : Env () -> ( Model, Cmd Msg )
 init _ =
     ( { red = 0
       , blue = 0
@@ -111,12 +111,6 @@ update msg model =
 
                         ( m, 0, 0 ) ->
                             Running ( m - 1, 59, 99 )
-
-                        ( 0, s, 0 ) ->
-                            Running ( 0, s - 1, 99 )
-
-                        ( 0, 0, ms ) ->
-                            Running ( 0, 0, ms - 1 )
 
                         ( m, s, 0 ) ->
                             Running ( m, s - 1, 99 )

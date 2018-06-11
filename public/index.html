@@ -4547,39 +4547,27 @@ var author$project$Main$update = F2(
 				var t = msg.a;
 				var timer = function () {
 					if (!t.c) {
-						if (!t.a) {
-							if (!t.b) {
+						if (!t.b) {
+							if (!t.a) {
 								return author$project$Main$Finished(
 									_Utils_eq(model.E, model.y) ? 'Draw!' : ((_Utils_cmp(model.E, model.y) > 0) ? 'Red wins!' : 'Blue wins!'));
 							} else {
-								var s = t.b;
-								return author$project$Main$Running(
-									_Utils_Tuple3(0, s - 1, 99));
-							}
-						} else {
-							if (!t.b) {
 								var m = t.a;
 								return author$project$Main$Running(
 									_Utils_Tuple3(m - 1, 59, 99));
-							} else {
-								var m = t.a;
-								var s = t.b;
-								return author$project$Main$Running(
-									_Utils_Tuple3(m, s - 1, 99));
 							}
-						}
-					} else {
-						if ((!t.a) && (!t.b)) {
-							var ms = t.c;
-							return author$project$Main$Running(
-								_Utils_Tuple3(0, 0, ms - 1));
 						} else {
 							var m = t.a;
 							var s = t.b;
-							var ms = t.c;
 							return author$project$Main$Running(
-								_Utils_Tuple3(m, s, ms - 1));
+								_Utils_Tuple3(m, s - 1, 99));
 						}
+					} else {
+						var m = t.a;
+						var s = t.b;
+						var ms = t.c;
+						return author$project$Main$Running(
+							_Utils_Tuple3(m, s, ms - 1));
 					}
 				}();
 				return _Utils_Tuple2(
