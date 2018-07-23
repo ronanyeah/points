@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Browser exposing (Env, Page)
+import Browser exposing (Document)
 import Element exposing (Attribute, Color, Element, centerX, centerY, column, el, fill, height, padding, px, row, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
@@ -22,11 +22,10 @@ rgb r g b =
 
 main : Program () Model Msg
 main =
-    Browser.fullscreen
+    Browser.document
         { init = init
         , update = update
         , view = view
-        , onNavigation = Nothing
         , subscriptions =
             \{ timer } ->
                 case timer of
@@ -58,7 +57,7 @@ type alias Model =
     }
 
 
-init : Env () -> ( Model, Cmd Msg )
+init : () -> ( Model, Cmd Msg )
 init _ =
     ( { red = 0
       , blue = 0
@@ -130,7 +129,7 @@ pad =
     String.fromInt >> String.padLeft 2 '0'
 
 
-view : Model -> Page Msg
+view : Model -> Document Msg
 view model =
     { title = "Points"
     , body =
@@ -141,8 +140,8 @@ view model =
             ]
             []
         , Element.layout [ height fill, Background.color uc ] <|
-            column [ spacing 20, height fill ]
-                [ row []
+            column [ spacing 20, height fill, centerX ]
+                [ row [ centerX, spacing 20 ]
                     [ el [ width fill, padding 10, Font.size 40, Background.color red ] <| el [ centerX, centerY ] <| text <| String.fromInt model.red
                     , el [ width fill, padding 10, Font.size 40, Background.color blue ] <| el [ centerX, centerY ] <| text <| String.fromInt model.blue
                     ]
@@ -171,12 +170,12 @@ view model =
                                 [ button
                                     [ width fill, padding 15, Background.color sc, Font.color white, shadow ]
                                     { onPress = Just <| SetTimer <| Waiting <| i + 1
-                                    , label = el [] <| text "+"
+                                    , label = el [ centerX ] <| text "+"
                                     }
                                 , button
                                     [ width fill, padding 15, Background.color sc, Font.color white, shadow ]
                                     { onPress = Just <| SetTimer <| Running ( i, 0, 0 )
-                                    , label = el [] <| text <| String.fromInt i
+                                    , label = el [ centerX ] <| text <| String.fromInt i
                                     }
                                 , button
                                     [ width fill, padding 15, Background.color sc, Font.color white, shadow ]
@@ -185,7 +184,7 @@ view model =
                                             Nothing
                                         else
                                             Just <| SetTimer <| Waiting <| i - 1
-                                    , label = el [] <| text "-"
+                                    , label = el [ centerX ] <| text "-"
                                     }
                                 ]
                             , reset
@@ -210,11 +209,11 @@ pointRow i =
     row [ spacing 10, width fill, padding 10, Font.color white ]
         [ button [ width fill, Background.color black, padding 10, shadow ]
             { onPress = Just <| Red i
-            , label = el [] <| text <| String.fromInt i
+            , label = el [ centerX ] <| text <| String.fromInt i
             }
         , button [ width fill, Background.color black, padding 10, shadow ]
             { onPress = Just <| Blue i
-            , label = el [] <| text <| String.fromInt i
+            , label = el [ centerX ] <| text <| String.fromInt i
             }
         ]
 
@@ -223,7 +222,7 @@ reset : Element Msg
 reset =
     button [ width fill, padding 15, Background.color sc, Font.color white, shadow ]
         { onPress = Just Clear
-        , label = el [] <| text "Reset"
+        , label = el [ centerX ] <| text "Reset"
         }
 
 
